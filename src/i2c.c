@@ -9,8 +9,7 @@
 #include "portmacro.h"
 #include "queue.h"
 
-
-static uint8_t device_addr;
+#include "i2c.h"
 
 SemaphoreHandle_t i2c_semaphor;
 
@@ -18,7 +17,7 @@ void BSP_Semaphor() {
 	i2c_semaphor = xSemaphoreCreateMutex();
 }
 
-void BSP_I2C_Init(uint8_t addr) {
+void BSP_I2C_Init() {
 	xSemaphoreTake( i2c_semaphor, portMAX_DELAY );
 	I2C_Init_TypeDef i2cInit = I2C_INIT_DEFAULT;
 	CMU_ClockEnable(cmuClock_I2C1, true);
@@ -28,7 +27,6 @@ void BSP_I2C_Init(uint8_t addr) {
 	I2C_ROUTE_SCLPEN | I2C_ROUTE_LOCATION_LOC0;
 	I2C_Init(I2C1, &i2cInit);
 
-	device_addr = addr;
 	xSemaphoreGive(i2c_semaphor);
 }
 
@@ -47,7 +45,7 @@ bool I2C_WriteRegister(uint8_t reg, uint8_t data) {
 	I2C_TransferSeq_TypeDef seq;
 	uint8_t dataW[2];
 
-	seq.addr = device_addr;
+	seq.addr = RGB_W_ADDR;
 	seq.flags = I2C_FLAG_WRITE;
 
 	/* Register to write: 0x67 ( INT_FLAT )*/
@@ -86,7 +84,7 @@ bool I2C_ReadRegister(uint8_t reg, uint8_t *val) {
 	I2C_TransferSeq_TypeDef seq;
 	uint8_t data[2];
 
-	seq.addr = device_addr;
+	seq.addr = RGB_R_ADDR;
 	seq.flags = I2C_FLAG_WRITE_READ;
 
 	seq.buf[0].data = &reg;

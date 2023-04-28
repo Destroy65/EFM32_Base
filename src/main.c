@@ -31,6 +31,8 @@
 
 #include "sleep.h"
 
+#include "i2c.h"
+
 #define STACK_SIZE_FOR_TASK    (configMINIMAL_STACK_SIZE + 10)
 #define TASK_PRIORITY          (tskIDLE_PRIORITY + 1)
 
@@ -57,6 +59,14 @@ static void LedBlink(void *pParameters)
   }
 }
 
+int _write(int file, const char *ptr, int len) {
+	int x;
+	for (x = 0; x < len; ++x) {
+		ITM_SendChar(*ptr++);
+	}
+	return len;
+}
+
 /***************************************************************************//**
  * @brief  Main function
  ******************************************************************************/
@@ -79,6 +89,33 @@ int main(void)
   /* do not let to sleep deeper than define */
   SLEEP_SleepBlockBegin((SLEEP_EnergyMode_t)(configSLEEP_MODE + 1));
 #endif
+
+  BSP_Semaphor();
+  BSP_I2C_Init();
+
+  I2C_Test();
+
+  I2C_WriteRegister(CONF_1_REG, RGB_MODE | RES_16_BIT);
+  I2C_WriteRegister(CONF_3_REG, NO_INT);
+
+  while (1) {
+	  uint8_t st;
+	  uint16_t r,g,b;
+	  //I2C_WriteRegister(CONF_1_REG, RGB_MODE | RES_16_BIT);
+	  do {I2C_ReadRegister(ST_REG, &st);} while(!(st&CONV_END));
+	  //I2C_WriteRegister(CONF_1_REG, STDY_MODE | RES_16_BIT);
+
+	  I2C_ReadRegister(R_REG_L, ((uint8_t*)&r));
+	  I2C_ReadRegister(R_REG_H, ((uint8_t*)&r) + 1);
+
+	  I2C_ReadRegister(G_REG_L, ((uint8_t*)&g));
+	  I2C_ReadRegister(G_REG_H, ((uint8_t*)&g) + 1);
+
+	  I2C_ReadRegister(B_REG_L, ((uint8_t*)&b));
+	  I2C_ReadRegister(B_REG_H, ((uint8_t*)&b) + 1);
+
+	  printf("R%d\tG%d\tB%d\n", r, g, b);
+  }
 
   /* Parameters value for taks*/
   static TaskParams_t parametersToTask1 = { pdMS_TO_TICKS(1000), 0 };
