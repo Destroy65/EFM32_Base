@@ -67,6 +67,8 @@ int _write(int file, const char *ptr, int len) {
 	return len;
 }
 
+uint16_t norm(uint16_t);
+
 /***************************************************************************//**
  * @brief  Main function
  ******************************************************************************/
@@ -95,7 +97,7 @@ int main(void)
 
   I2C_Test();
 
-  I2C_WriteRegister(CONF_1_REG, RGB_MODE | RES_16_BIT);
+  I2C_WriteRegister(CONF_1_REG, RGB_MODE);
   I2C_WriteRegister(CONF_3_REG, NO_INT);
 
   while (1) {
@@ -114,7 +116,7 @@ int main(void)
 	  I2C_ReadRegister(B_REG_L, ((uint8_t*)&b));
 	  I2C_ReadRegister(B_REG_H, ((uint8_t*)&b) + 1);
 
-	  printf("R%d\tG%d\tB%d\n", r, g, b);
+	  printf("R%d\tG%d\tB%d\n", (int)(((float)r*1.98)/65535*255), (int)(((float)g*1.73)/65535*255), (int)(((float)b*1.77)/65535*255));
   }
 
   /* Parameters value for taks*/
