@@ -23,8 +23,7 @@ void BSP_I2C_Init() {
 	CMU_ClockEnable(cmuClock_I2C1, true);
 	GPIO_PinModeSet(gpioPortC, 4, gpioModeWiredAnd, 1);
 	GPIO_PinModeSet(gpioPortC, 5, gpioModeWiredAnd, 1);
-	I2C1->ROUTE = I2C_ROUTE_SDAPEN |
-	I2C_ROUTE_SCLPEN | I2C_ROUTE_LOCATION_LOC0;
+	I2C1->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | I2C_ROUTE_LOCATION_LOC0;
 	I2C_Init(I2C1, &i2cInit);
 
 	xSemaphoreGive(i2c_semaphor);

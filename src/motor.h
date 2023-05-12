@@ -8,6 +8,10 @@
 #ifndef SRC_MOTOR_H_
 #define SRC_MOTOR_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "em_gpio.h"
+
 typedef struct {
 	uint8_t reg;
 	GPIO_Port_TypeDef port;
@@ -24,6 +28,6 @@ typedef enum {
 
 Motor motor_init(GPIO_Port_TypeDef port, uint8_t pin1, uint8_t pin2, uint8_t pin3);
 
-void motor_step_(Direction dir, Motor* mot);
+void motor_step(Direction dir, Motor* mot);
 
 #endif /* SRC_MOTOR_H_ */

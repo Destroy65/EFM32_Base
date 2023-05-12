@@ -32,8 +32,9 @@
 #include "sleep.h"
 
 #include "i2c.h"
+#include "tasks.h"
 
-#define STACK_SIZE_FOR_TASK    (configMINIMAL_STACK_SIZE + 10)
+#define STACK_SIZE_FOR_TASK    (configMINIMAL_STACK_SIZE + 20)
 #define TASK_PRIORITY          (tskIDLE_PRIORITY + 1)
 
 /* Structure with parameters for LedBlink */
@@ -44,20 +45,7 @@ typedef struct {
   int          ledNo;
 } TaskParams_t;
 
-/***************************************************************************//**
- * @brief Simple task which is blinking led
- * @param *pParameters pointer to parameters passed to the function
- ******************************************************************************/
-static void LedBlink(void *pParameters)
-{
-  TaskParams_t     * pData = (TaskParams_t*) pParameters;
-  const portTickType delay = pData->delay;
 
-  for (;; ) {
-    BSP_LedToggle(pData->ledNo);
-    vTaskDelay(delay);
-  }
-}
 
 int _write(int file, const char *ptr, int len) {
 	int x;
@@ -66,8 +54,6 @@ int _write(int file, const char *ptr, int len) {
 	}
 	return len;
 }
-
-uint16_t norm(uint16_t);
 
 /***************************************************************************//**
  * @brief  Main function
@@ -79,11 +65,6 @@ int main(void)
   /* If first word of user data page is non-zero, enable Energy Profiler trace */
   BSP_TraceProfilerSetup();
 
-  /* Initialize LED driver */
-  BSP_LedsInit();
-  /* Setting state of leds*/
-  BSP_LedSet(0);
-  BSP_LedSet(1);
 
   /* Initialize SLEEP driver, no calbacks are used */
   SLEEP_Init(NULL, NULL);
@@ -100,35 +81,10 @@ int main(void)
   I2C_WriteRegister(CONF_1_REG, RGB_MODE);
   I2C_WriteRegister(CONF_3_REG, NO_INT);
 
-  while (1) {
-	  uint8_t st;
-	  uint16_t r,g,b;
-	  //I2C_WriteRegister(CONF_1_REG, RGB_MODE | RES_16_BIT);
-	  do {I2C_ReadRegister(ST_REG, &st);} while(!(st&CONV_END));
-	  //I2C_WriteRegister(CONF_1_REG, STDY_MODE | RES_16_BIT);
+  tasks_init();
 
-	  I2C_ReadRegister(R_REG_L, ((uint8_t*)&r));
-	  I2C_ReadRegister(R_REG_H, ((uint8_t*)&r) + 1);
+  while(1){}
 
-	  I2C_ReadRegister(G_REG_L, ((uint8_t*)&g));
-	  I2C_ReadRegister(G_REG_H, ((uint8_t*)&g) + 1);
-
-	  I2C_ReadRegister(B_REG_L, ((uint8_t*)&b));
-	  I2C_ReadRegister(B_REG_H, ((uint8_t*)&b) + 1);
-
-	  printf("R%d\tG%d\tB%d\n", (int)(((float)r*1.98)/65535*255), (int)(((float)g*1.73)/65535*255), (int)(((float)b*1.77)/65535*255));
-  }
-
-  /* Parameters value for taks*/
-  static TaskParams_t parametersToTask1 = { pdMS_TO_TICKS(1000), 0 };
-  static TaskParams_t parametersToTask2 = { pdMS_TO_TICKS(500), 1 };
-
-  /*Create two task for blinking leds*/
-  xTaskCreate(LedBlink, (const char *) "LedBlink1", STACK_SIZE_FOR_TASK, &parametersToTask1, TASK_PRIORITY, NULL);
-  xTaskCreate(LedBlink, (const char *) "LedBlink2", STACK_SIZE_FOR_TASK, &parametersToTask2, TASK_PRIORITY, NULL);
-
-  /*Start FreeRTOS Scheduler*/
-  vTaskStartScheduler();
 
   return 0;
 }
