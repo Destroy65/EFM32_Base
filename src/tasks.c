@@ -60,9 +60,9 @@ void convert_task(void *pParameters) {
 		xQueueReceive(xQueueRGB16, &rgb16, portMAX_DELAY);
 
 		RGB8 rgb8;
-		rgb8.R = ((float)rgb16.R*1.98)/65535*255;
-		rgb8.G = ((float)rgb16.G*1.73)/65535*255;
-		rgb8.B = ((float)rgb16.B*1.77)/65535*255;
+		rgb8.R = ((float)rgb16.R*4.04)/65535*255 <= 255 ? ((float)rgb16.R*4.04)/65535*255 : 255;
+		rgb8.G = ((float)rgb16.G*3)/65535*255 <= 255 ? ((float)rgb16.G*3)/65535*255 : 255;
+		rgb8.B = ((float)rgb16.B*5.54)/65535*255 <= 255 ? ((float)rgb16.B*5.54)/65535*255 : 255;
 
 		xQueueSend(xQueueRGB8, &rgb8, portMAX_DELAY);
 	}

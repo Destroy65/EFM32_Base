@@ -33,6 +33,7 @@
 
 #include "i2c.h"
 #include "tasks.h"
+#include "motor.h"
 
 #define STACK_SIZE_FOR_TASK    (configMINIMAL_STACK_SIZE + 20)
 #define TASK_PRIORITY          (tskIDLE_PRIORITY + 1)
@@ -76,12 +77,25 @@ int main(void)
   BSP_Semaphor();
   BSP_I2C_Init();
 
-  I2C_Test();
+  /*if(!I2C_Test()){
+	  printf("ERROR RGB module not available.");
+	  return -1;
+  }*/
 
   I2C_WriteRegister(CONF_1_REG, RGB_MODE);
   I2C_WriteRegister(CONF_3_REG, NO_INT);
 
-  tasks_init();
+  //tasks_init();
+
+  Motor motor = motor_init(gpioPortD, 0);
+  Direction dir = CCW;
+  for (int i = 0; i<100; i++)
+	  motor_step(dir, &motor);
+
+
+  dir = CW;
+  for (int i = 0; i<100; i++)
+  	  motor_step(dir, &motor);
 
   while(1){}
 

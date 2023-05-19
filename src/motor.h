@@ -15,10 +15,7 @@
 typedef struct {
 	uint8_t reg;
 	GPIO_Port_TypeDef port;
-	uint8_t pin0;
-	uint8_t pin1;
-	uint8_t pin2;
-	uint8_t pin3;
+	uint8_t pin_start;
 } Motor;
 
 typedef enum {
@@ -26,7 +23,7 @@ typedef enum {
 	CCW
 } Direction;
 
-Motor motor_init(GPIO_Port_TypeDef port, uint8_t pin1, uint8_t pin2, uint8_t pin3);
+Motor motor_init(GPIO_Port_TypeDef port, uint8_t pin);
 
 void motor_step(Direction dir, Motor* mot);
 
