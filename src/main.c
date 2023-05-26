@@ -35,19 +35,6 @@
 #include "tasks.h"
 #include "motor.h"
 
-#define STACK_SIZE_FOR_TASK    (configMINIMAL_STACK_SIZE + 20)
-#define TASK_PRIORITY          (tskIDLE_PRIORITY + 1)
-
-/* Structure with parameters for LedBlink */
-typedef struct {
-  /* Delay between blink of led */
-  portTickType delay;
-  /* Number of led */
-  int          ledNo;
-} TaskParams_t;
-
-
-
 int _write(int file, const char *ptr, int len) {
 	int x;
 	for (x = 0; x < len; ++x) {
@@ -88,12 +75,9 @@ int main(void)
   //tasks_init();
 
   Motor motor = motor_init(gpioPortD, 0);
-  Direction dir = CCW;
   for (int i = 0; i<100; i++)
 	  motor_step(dir, &motor);
 
-
-  dir = CW;
   for (int i = 0; i<100; i++)
   	  motor_step(dir, &motor);
 

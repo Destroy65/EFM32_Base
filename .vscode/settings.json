@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "tasks.h": "c",
+        "i2c.h": "c"
+    }
+}
