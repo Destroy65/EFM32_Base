@@ -28,9 +28,18 @@ void tasks_init() {
 	xQueueRGB8 = xQueueCreate(20, sizeof(RGB8));
 
 	Motor base = motor_init(gpioPortD, 0);
-	Motor arm = motor_init(gpioPortD, 0);
+	Motor arm = motor_init(gpioPortD, 4);
 
-	static MoveParams_t motors = { base, arm };
+	static MoveParams_t motors;
+
+	motors.arm = arm;
+	motors.base = base;
+
+	SLEEP_Init(NULL, NULL);
+	#if (configSLEEP_MODE < 3)
+	  /* do not let to sleep deeper than define */
+	  SLEEP_SleepBlockBegin((SLEEP_EnergyMode_t)(configSLEEP_MODE + 1));
+	#endif
 
 	xTaskCreate(move_task, (const char *) "MOVE", STACK_SIZE_FOR_TASK, (void*)&motors, TASK_PRIORITY, NULL);
 	xTaskCreate(convert_task, (const char *) "CONVERT", STACK_SIZE_FOR_TASK, NULL, TASK_PRIORITY, NULL);
@@ -41,7 +50,7 @@ void tasks_init() {
 void motor_move_deg(Motor *mot, Direction dir, int degrees) {
 	for (size_t i = 0; i < (int)degrees/DEG_PER_STEP; i++) {
 		motor_step(dir, mot);
-		vTaskDelay(MOTOR_DELAY_MS);
+		vTaskDelay(pdMS_TO_TICKS(MOTOR_DELAY_MS));
 	}
 }
 
@@ -76,10 +85,10 @@ void move_task(void *pParameters) {
 	for (size_t i = 0; i < HEIGHT; i++) {
 		for (size_t j = 0; j < WIDTH; j++)	{
 			read_sensor();
-			motor_move_deg(motors->base, dir, DEG);
+			motor_move_deg(&motors->base, dir, DEG);
 		}
 		read_sensor();
-		motor_move_deg(motors->arm, CW, DEG);
+		motor_move_deg(&motors->arm, CW, DEG);
 		dir = dir == CCW ? CW : CCW;
 	}
 }
@@ -95,9 +104,9 @@ void convert_task(void *pParameters) {
 		xQueueReceive(xQueueRGB16, &rgb16, portMAX_DELAY);
 
 		RGB8 rgb8;
-		rgb8.R = rgb16_to_rgb8(rgb16.R, 4.04f);
-		rgb8.G = rgb16_to_rgb8(rgb16.G, 3.0f);
-		rgb8.B = rgb16_to_rgb8(rgb16.B, 5.54f);
+		rgb8.R = rgb16_to_rgb8(rgb16.R/*(1/(((1+rgb16.B+rgb16.G)/2)/(65535/2)))*/, 1.0f);
+		rgb8.G = rgb16_to_rgb8(rgb16.G/*(1/(((1+rgb16.B+rgb16.R)/2)/(65535/2)))*/, 1.0f);
+		rgb8.B = rgb16_to_rgb8(rgb16.B/*(1/(((1+rgb16.R+rgb16.G)/2)/(65535/2)))*/, 1.0f);
 
 		xQueueSend(xQueueRGB8, &rgb8, portMAX_DELAY);
 	}

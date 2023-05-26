@@ -64,22 +64,19 @@ int main(void)
   BSP_Semaphor();
   BSP_I2C_Init();
 
-  /*if(!I2C_Test()){
+  if(!I2C_Test()){
 	  printf("ERROR RGB module not available.");
 	  return -1;
-  }*/
+  }
 
   I2C_WriteRegister(CONF_1_REG, RGB_MODE);
   I2C_WriteRegister(CONF_3_REG, NO_INT);
 
-  //tasks_init();
+  tasks_init();
 
-  Motor motor = motor_init(gpioPortD, 0);
-  for (int i = 0; i<100; i++)
-	  motor_step(dir, &motor);
+  /*Motor mot = motor_init(gpioPortD, 0);
 
-  for (int i = 0; i<100; i++)
-  	  motor_step(dir, &motor);
+  motor_move_deg(&mot, CCW, 90);*/
 
   while(1){}
 
