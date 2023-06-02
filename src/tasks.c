@@ -87,7 +87,6 @@ void move_task(void *pParameters) {
 			read_sensor();
 			motor_move_deg(&motors->base, dir, DEG);
 		}
-		read_sensor();
 		motor_move_deg(&motors->arm, CW, DEG);
 		dir = dir == CCW ? CW : CCW;
 	}

@@ -25,8 +25,9 @@ Motor motor_init(GPIO_Port_TypeDef port, uint8_t pin) {
 }
 
 void motor_step(Direction dir, Motor* mot) {
-	if (dir == CCW)
+	if (dir == CCW) {
 		mot->reg = ((int)mot->reg-1 < 0)? 3 : (mot->reg-1);
+	}
 
 		GPIO_PinOutToggle(mot->port, mot->pin_start+((int)mot->reg-1 < 0)? 3 : (mot->reg-1));
 		GPIO_PinOutToggle(mot->port, mot->pin_start+(mot->reg+1)%4);

@@ -18,10 +18,10 @@
 #define STACK_SIZE_FOR_TASK    (configMINIMAL_STACK_SIZE + 10)
 #define TASK_PRIORITY          (tskIDLE_PRIORITY + 1)
 
-#define HEIGHT 10
-#define WIDTH 30
+#define HEIGHT 20
+#define WIDTH 20
 
-#define MOTOR_DELAY_MS 50
+#define MOTOR_DELAY_MS 20
 
 #define DEG 10
 
